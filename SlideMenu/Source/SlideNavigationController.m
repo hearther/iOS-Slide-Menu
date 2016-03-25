@@ -63,7 +63,9 @@ NSString  *const SlideNavigationControllerDidReveal = @"SlideNavigationControlle
 static SlideNavigationController *singletonInstance;
 
 #pragma mark - Initialization -
-
++ (void)setSharedInstanceToNull{
+    singletonInstance = NULL;
+}
 + (SlideNavigationController *)sharedInstance
 {
 	if (!singletonInstance)
@@ -395,7 +397,7 @@ static SlideNavigationController *singletonInstance;
 
 - (void)updateMenuFrameAndTransformAccordingToOrientation
 {
-	// Animate rotatation when menu is open and device rotates
+	// Animate rotatation when menu is open and interface rotates
 	CGAffineTransform transform = self.view.transform;
 	self.leftMenu.view.transform = transform;
 	self.rightMenu.view.transform = transform;
@@ -520,7 +522,7 @@ static SlideNavigationController *singletonInstance;
 - (void)moveHorizontallyToLocation:(CGFloat)location
 {
 	CGRect rect = self.view.frame;
-	UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+	UIInterfaceOrientation orientation = [self interfaceOrientation];
 	Menu menu = (self.horizontalLocation >= 0 && location >= 0) ? MenuLeft : MenuRight;
     
     if ((location > 0 && self.horizontalLocation <= 0) || (location < 0 && self.horizontalLocation >= 0)) {
@@ -570,7 +572,7 @@ static SlideNavigationController *singletonInstance;
         return rect;
     }
 	
-	UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+	UIInterfaceOrientation orientation = [self interfaceOrientation];
 	
 	if (UIInterfaceOrientationIsLandscape(orientation))
 	{
@@ -591,8 +593,11 @@ static SlideNavigationController *singletonInstance;
 - (void)prepareMenuForReveal:(Menu)menu
 {
 	// Only prepare menu if it has changed (ex: from MenuLeft to MenuRight or vice versa)
-    if (self.lastRevealedMenu && menu == self.lastRevealedMenu)
+    if (self.lastRevealedMenu && menu == self.lastRevealedMenu){
+        UIViewController *menuViewController = (menu == MenuLeft) ? self.leftMenu : self.rightMenu;
+        [menuViewController viewWillAppear:YES];
         return;
+    }
     
     UIViewController *menuViewController = (menu == MenuLeft) ? self.leftMenu : self.rightMenu;
 	UIViewController *removingMenuViewController = (menu == MenuLeft) ? self.rightMenu : self.leftMenu;
@@ -600,17 +605,18 @@ static SlideNavigationController *singletonInstance;
     self.lastRevealedMenu = menu;
 	
 	[removingMenuViewController.view removeFromSuperview];
-	[self.view.window insertSubview:menuViewController.view atIndex:0];
+	[self.view.superview insertSubview:menuViewController.view atIndex:0];
 
 	[self updateMenuFrameAndTransformAccordingToOrientation];
 	
+    [menuViewController viewWillAppear:YES];
 	[self.menuRevealAnimator prepareMenuForAnimation:menu];
 }
 
 - (CGFloat)horizontalLocation
 {
 	CGRect rect = self.view.frame;
-	UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+	UIInterfaceOrientation orientation = [self interfaceOrientation];
 	
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0"))
     {
@@ -636,7 +642,7 @@ static SlideNavigationController *singletonInstance;
 - (CGFloat)horizontalSize
 {
 	CGRect rect = self.view.frame;
-	UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+	UIInterfaceOrientation orientation = [self interfaceOrientation];
 	
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0"))
     {
@@ -677,7 +683,7 @@ static SlideNavigationController *singletonInstance;
 
 - (CGFloat)slideOffset
 {
-	return (UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation))
+	return (UIInterfaceOrientationIsLandscape([self interfaceOrientation]))
 		? self.landscapeSlideOffset
 		: self.portraitSlideOffset;
 }
