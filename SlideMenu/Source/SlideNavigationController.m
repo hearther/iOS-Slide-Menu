@@ -452,20 +452,42 @@ static SlideNavigationController *singletonInstance;
 	}
 }
 
+- (BOOL)shouldDisplayMenuBarBtn:(Menu)menu forViewController:(UIViewController *)vc
+{
+	if (menu == MenuRight)
+	{
+		if ([vc respondsToSelector:@selector(slideNavigationControllerShouldDisplayRightMenuBarBtn)] &&
+			[(UIViewController<SlideNavigationControllerDelegate> *)vc slideNavigationControllerShouldDisplayRightMenuBarBtn])
+		{
+			return YES;
+		}
+	}
+	if (menu == MenuLeft)
+	{        
+		if ([vc respondsToSelector:@selector(slideNavigationControllerShouldDisplayLeftMenuBarBtn)] &&
+			[(UIViewController<SlideNavigationControllerDelegate> *)vc slideNavigationControllerShouldDisplayLeftMenuBarBtn])
+		{
+			return YES;
+		}
+	}
+	
+	return NO;
+}
+
 - (BOOL)shouldDisplayMenu:(Menu)menu forViewController:(UIViewController *)vc
 {
 	if (menu == MenuRight)
 	{
-		if ([vc respondsToSelector:@selector(slideNavigationControllerShouldDisplayRightMenu)] &&
-			[(UIViewController<SlideNavigationControllerDelegate> *)vc slideNavigationControllerShouldDisplayRightMenu])
+        if ([vc respondsToSelector:@selector(slideNavigationControllerShouldDisplayRightMenuBarBtn)] &&
+            [(UIViewController<SlideNavigationControllerDelegate> *)vc slideNavigationControllerShouldSupportRightMenu])
 		{
 			return YES;
 		}
 	}
 	if (menu == MenuLeft)
 	{
-		if ([vc respondsToSelector:@selector(slideNavigationControllerShouldDisplayLeftMenu)] &&
-			[(UIViewController<SlideNavigationControllerDelegate> *)vc slideNavigationControllerShouldDisplayLeftMenu])
+        if ([vc respondsToSelector:@selector(slideNavigationControllerShouldDisplayLeftMenuBarBtn)] &&
+            [(UIViewController<SlideNavigationControllerDelegate> *)vc slideNavigationControllerShouldSupportLeftMenu])
 		{
 			return YES;
 		}
@@ -476,6 +498,12 @@ static SlideNavigationController *singletonInstance;
 
 - (void)openMenu:(Menu)menu withDuration:(float)duration andCompletion:(void (^)())completion
 {
+    
+    if ([self.visibleViewController respondsToSelector:@selector(slideNavigationControllerWillOpenMenu)])
+    {
+        [(UIViewController<SlideNavigationControllerDelegate> *)self.visibleViewController slideNavigationControllerWillOpenMenu];
+    }
+    
 	[self enableTapGestureToCloseMenu:YES];
 
 	[self prepareMenuForReveal:menu];
@@ -674,10 +702,10 @@ static SlideNavigationController *singletonInstance;
 	  willShowViewController:(UIViewController *)viewController
 					animated:(BOOL)animated
 {
-	if ([self shouldDisplayMenu:MenuLeft forViewController:viewController])
+	if ([self shouldDisplayMenuBarBtn:MenuLeft forViewController:viewController])
 		viewController.navigationItem.leftBarButtonItem = [self barButtonItemForMenu:MenuLeft];
 	
-	if ([self shouldDisplayMenu:MenuRight forViewController:viewController])
+	if ([self shouldDisplayMenuBarBtn:MenuRight forViewController:viewController])
 		viewController.navigationItem.rightBarButtonItem = [self barButtonItemForMenu:MenuRight];
 }
 
@@ -743,6 +771,7 @@ static SlideNavigationController *singletonInstance;
     
     if (![self shouldDisplayMenu:currentMenu forViewController:self.topViewController])
         return;
+    
     
     [self prepareMenuForReveal:currentMenu];
     
