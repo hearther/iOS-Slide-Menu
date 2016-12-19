@@ -474,20 +474,20 @@ static SlideNavigationController *singletonInstance;
 	return NO;
 }
 
-- (BOOL)shouldDisplayMenu:(Menu)menu forViewController:(UIViewController *)vc
+- (BOOL)shouldSupportPanDisplayMenu:(Menu)menu forViewController:(UIViewController *)vc
 {
 	if (menu == MenuRight)
 	{
-        if ([vc respondsToSelector:@selector(slideNavigationControllerShouldDisplayRightMenuBarBtn)] &&
-            [(UIViewController<SlideNavigationControllerDelegate> *)vc slideNavigationControllerShouldSupportRightMenu])
+        if ([vc respondsToSelector:@selector(slideNavigationControllerShouldSupportPanRightMenu)] &&
+            [(UIViewController<SlideNavigationControllerDelegate> *)vc slideNavigationControllerShouldSupportPanRightMenu])
 		{
 			return YES;
 		}
 	}
 	if (menu == MenuLeft)
 	{
-        if ([vc respondsToSelector:@selector(slideNavigationControllerShouldDisplayLeftMenuBarBtn)] &&
-            [(UIViewController<SlideNavigationControllerDelegate> *)vc slideNavigationControllerShouldSupportLeftMenu])
+        if ([vc respondsToSelector:@selector(slideNavigationControllerShouldSupportPanLeftMenu)] &&
+            [(UIViewController<SlideNavigationControllerDelegate> *)vc slideNavigationControllerShouldSupportPanLeftMenu])
 		{
 			return YES;
 		}
@@ -769,7 +769,7 @@ static SlideNavigationController *singletonInstance;
     else
         currentMenu = (translation.x > 0) ? MenuLeft : MenuRight;
     
-    if (![self shouldDisplayMenu:currentMenu forViewController:self.topViewController])
+    if (![self shouldSupportPanDisplayMenu:currentMenu forViewController:self.topViewController])
         return;
     
     
@@ -807,7 +807,7 @@ static SlideNavigationController *singletonInstance;
 			{
 				if (currentX > 0)
 				{
-					if ([self shouldDisplayMenu:menu forViewController:self.visibleViewController])
+					if ([self shouldSupportPanDisplayMenu:menu forViewController:self.visibleViewController])
 						[self openMenu:(velocity.x > 0) ? MenuLeft : MenuRight withDuration:MENU_QUICK_SLIDE_ANIMATION_DURATION andCompletion:nil];
 				}
 				else
@@ -824,7 +824,7 @@ static SlideNavigationController *singletonInstance;
 				}
 				else
 				{
-					if ([self shouldDisplayMenu:menu forViewController:self.visibleViewController])
+					if ([self shouldSupportPanDisplayMenu:menu forViewController:self.visibleViewController])
 						[self openMenu:(velocity.x > 0) ? MenuLeft : MenuRight withDuration:MENU_QUICK_SLIDE_ANIMATION_DURATION andCompletion:nil];
 				}
 			}
@@ -841,7 +841,7 @@ static SlideNavigationController *singletonInstance;
 
 - (NSInteger)minXForDragging
 {
-	if ([self shouldDisplayMenu:MenuRight forViewController:self.topViewController])
+	if ([self shouldSupportPanDisplayMenu:MenuRight forViewController:self.topViewController])
 	{
 		return (self.horizontalSize - self.slideOffset)  * -1;
 	}
@@ -851,7 +851,7 @@ static SlideNavigationController *singletonInstance;
 
 - (NSInteger)maxXForDragging
 {
-	if ([self shouldDisplayMenu:MenuLeft forViewController:self.topViewController])
+	if ([self shouldSupportPanDisplayMenu:MenuLeft forViewController:self.topViewController])
 	{
 		return self.horizontalSize - self.slideOffset;
 	}

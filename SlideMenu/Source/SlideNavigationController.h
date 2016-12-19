@@ -34,8 +34,8 @@
 @optional
 - (BOOL)slideNavigationControllerShouldDisplayRightMenuBarBtn;
 - (BOOL)slideNavigationControllerShouldDisplayLeftMenuBarBtn;
-- (BOOL)slideNavigationControllerShouldSupportRightMenu;
-- (BOOL)slideNavigationControllerShouldSupportLeftMenu;
+- (BOOL)slideNavigationControllerShouldSupportPanRightMenu;
+- (BOOL)slideNavigationControllerShouldSupportPanLeftMenu;
 - (void)slideNavigationControllerWillOpenMenu;
 @end
 
